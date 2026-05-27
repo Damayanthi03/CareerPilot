@@ -1,0 +1,487 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: AI Career Guidance System API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: career
+    description: Career guidance and student assessment operations
+  - name: auth
+    description: Authentication operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /career/analyze:
+    post:
+      operationId: analyzeStudent
+      tags: [career]
+      summary: Analyze student profile and generate career guidance
+      description: Runs ML predictions and generates AI-powered career suggestions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Assessment created with predictions and AI suggestions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerAssessment"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /career/assessments:
+    get:
+      operationId: listAssessments
+      tags: [career]
+      summary: List all career assessments
+      responses:
+        "200":
+          description: List of assessments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssessmentSummary"
+
+  /career/assessments/{id}:
+    get:
+      operationId: getAssessment
+      tags: [career]
+      summary: Get a specific assessment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Full assessment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerAssessment"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+    delete:
+      operationId: deleteAssessment
+      tags: [career]
+      summary: Delete an assessment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /career/stats:
+    get:
+      operationId: getCareerStats
+      tags: [career]
+      summary: Get aggregated career guidance statistics
+      description: Dashboard overview with domain distribution, placement rates, skill levels
+      responses:
+        "200":
+          description: Aggregated stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerStats"
+
+  /career/domains:
+    get:
+      operationId: listCareerDomains
+      tags: [career]
+      summary: List all available career domains with info
+      responses:
+        "200":
+          description: Career domains list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CareerDomain"
+
+  /career/profile:
+    get:
+      operationId: getMyProfile
+      tags: [career]
+      summary: Get current user's personal profile with assessment history
+      description: Returns the authenticated user's own assessments, score history, and personal stats
+      responses:
+        "200":
+          description: User profile with personal assessment history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /auth/user:
+    get:
+      operationId: getCurrentAuthUser
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Auth state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    StudentInput:
+      type: object
+      required:
+        - name
+        - attendance
+        - codingSkill
+        - aptitudeScore
+        - communicationSkill
+        - academicScore
+        - technicalInterest
+      properties:
+        name:
+          type: string
+          description: Student's name
+        attendance:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Attendance percentage
+        codingSkill:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Coding skill score (0-100)
+        aptitudeScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Aptitude test score (0-100)
+        communicationSkill:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Communication skill score (0-100)
+        academicScore:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Overall academic/CGPA score (0-100)
+        technicalInterest:
+          type: string
+          enum:
+            - web_development
+            - data_analytics
+            - ai_ml
+            - cyber_security
+            - cloud_computing
+            - app_development
+            - blockchain
+            - devops
+            - game_development
+            - ui_ux_design
+            - iot
+            - ar_vr
+          description: Primary technical interest area
+        githubUrl:
+          type: string
+          description: Student's GitHub profile URL
+          nullable: true
+        linkedinUrl:
+          type: string
+          description: Student's LinkedIn profile URL
+          nullable: true
+
+    CareerAssessment:
+      type: object
+      required:
+        - id
+        - studentName
+        - attendance
+        - codingSkill
+        - aptitudeScore
+        - communicationSkill
+        - academicScore
+        - technicalInterest
+        - performanceScore
+        - placementEligible
+        - recommendedDomain
+        - skillGroup
+        - aiSuggestions
+        - createdAt
+      properties:
+        id:
+          type: integer
+        studentName:
+          type: string
+        attendance:
+          type: number
+        codingSkill:
+          type: number
+        aptitudeScore:
+          type: number
+        communicationSkill:
+          type: number
+        academicScore:
+          type: number
+        technicalInterest:
+          type: string
+        githubUrl:
+          type: string
+          nullable: true
+        linkedinUrl:
+          type: string
+          nullable: true
+        performanceScore:
+          type: number
+          description: Predicted overall performance score (0-100)
+        placementEligible:
+          type: boolean
+          description: Whether the student is eligible for placement
+        recommendedDomain:
+          type: string
+          description: Recommended career domain
+        skillGroup:
+          type: string
+          enum: [Beginner, Intermediate, Advanced]
+          description: Student skill level classification
+        aiSuggestions:
+          type: array
+          items:
+            type: string
+          description: AI-generated personalized career improvement suggestions
+        createdAt:
+          type: string
+          format: date-time
+
+    AssessmentSummary:
+      type: object
+      required:
+        - id
+        - studentName
+        - performanceScore
+        - placementEligible
+        - recommendedDomain
+        - skillGroup
+        - createdAt
+      properties:
+        id:
+          type: integer
+        studentName:
+          type: string
+        performanceScore:
+          type: number
+        placementEligible:
+          type: boolean
+        recommendedDomain:
+          type: string
+        skillGroup:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ScoreHistoryPoint:
+      type: object
+      required: [date, score, domain, skillGroup]
+      properties:
+        date:
+          type: string
+          format: date-time
+        score:
+          type: number
+        domain:
+          type: string
+        skillGroup:
+          type: string
+
+    UserProfile:
+      type: object
+      required:
+        - userId
+        - displayName
+        - totalAssessments
+        - avgScore
+        - bestScore
+        - placementRate
+        - scoreHistory
+        - assessments
+      properties:
+        userId:
+          type: string
+        displayName:
+          type: string
+        totalAssessments:
+          type: integer
+        avgScore:
+          type: number
+        bestScore:
+          type: number
+        placementRate:
+          type: number
+        scoreHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreHistoryPoint"
+        assessments:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssessmentSummary"
+
+    CareerStats:
+      type: object
+      required:
+        - totalAssessments
+        - placementEligibleCount
+        - placementEligibleRate
+        - averagePerformanceScore
+        - skillGroupCounts
+        - domainDistribution
+        - recentAssessments
+      properties:
+        totalAssessments:
+          type: integer
+        placementEligibleCount:
+          type: integer
+        placementEligibleRate:
+          type: number
+          description: Percentage of students eligible for placement
+        averagePerformanceScore:
+          type: number
+        skillGroupCounts:
+          type: object
+          properties:
+            Beginner:
+              type: integer
+            Intermediate:
+              type: integer
+            Advanced:
+              type: integer
+          required: [Beginner, Intermediate, Advanced]
+        domainDistribution:
+          type: array
+          items:
+            type: object
+            properties:
+              domain:
+                type: string
+              count:
+                type: integer
+            required: [domain, count]
+        recentAssessments:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssessmentSummary"
+
+    CareerDomain:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - keySkills
+        - avgSalaryRange
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        keySkills:
+          type: array
+          items:
+            type: string
+        avgSalaryRange:
+          type: string
+
+    AuthUser:
+      type: object
+      properties:
+        isAuthenticated:
+          type: boolean
+        user:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+            username:
+              type: string
+            firstName:
+              type: string
+              nullable: true
+            lastName:
+              type: string
+              nullable: true
+            profileImage:
+              type: string
+              nullable: true
+          required: [id, username]
+      required: [isAuthenticated]
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
