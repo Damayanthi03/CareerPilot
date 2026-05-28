@@ -29,10 +29,8 @@ CareerPilot AI helps users:
 - Skill Group Classification
 - Assessment Retake Support
 - Responsive Modern UI
-- Authentication System
 - Interactive Charts & Graphs
 - Protected Routes
-- Mobile Friendly Design
 - Dark Mode Support
 
 ---
