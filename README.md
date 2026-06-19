@@ -1,5 +1,7 @@
 # CareerPilot AI
 
+![CareerPilot AI](assets/home.png)
+
 CareerPilot AI is an AI-powered Career Analysis and Assessment Platform designed to help students and aspiring professionals evaluate their skills, analyze performance, and receive intelligent career domain recommendations through interactive assessments and analytics.
 
 The platform combines full-stack web development, assessment systems, analytics dashboards, and AI-assisted career guidance to provide a modern career evaluation experience.
